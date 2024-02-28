@@ -37,7 +37,8 @@ export class Users extends BaseEntity {
 
 
 /*
-      id int auto_increment primary key,
+
+hqwnbqdjnduqw|dnqudbnqwidnjqwdid int auto_increment primary key,
   cod VARCHAR(30) unique,
   fullname VARCHAR(200) NOT NULL,
   email VARCHAR(100) NOT NULL,
