@@ -1,45 +1,48 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { Repository,EntityManager, DataSource } from 'typeorm';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Users } from './users.entity';
-import { Connection } from 'mysql2/typings/mysql/lib/Connection';
+import { Users } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectDataSource() private dataSource: DataSource,
-       ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
-       async create(createUserDto: CreateUserDto) {
-        const { cod, fullname, email, password, cellphone, grade, isProfessor, isAdmin } = createUserDto;
-        const result = await this.dataSource.query(
-            `INSERT INTO users (cod, fullname, email, password, cellphone, grade, isProfessor, isAdmin, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-            [cod, fullname, email, password, cellphone, grade, isProfessor, isAdmin]
-        );
-        const response = await this.dataSource.query(
-            `SELECT * FROM users WHERE cod = ?`,
-            [cod]
-        );
+  async register(createUserDto: CreateUserDto): Promise<Users> {
+    const {id_professor, username, password} = createUserDto;
+    Logger.log(username,password, id_professor)
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await this.dataSource.query(
+      `INSERT INTO users (id_professor, username, password,  created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)`,
+      [id_professor, username, hashedPassword, ]
+    );
+    const id = result.insertId;
+    const user = await this.dataSource.query(
+      `SELECT * FROM users WHERE id = ?`,
+      [id]
+    );
+    return user;
+  }
 
-
-        Logger.log(response);
-        return { data: response};
+  async login(loginUserDto: LoginUserDto): Promise<Users> {
+    Logger.log(loginUserDto);
+    const { username, password}  = loginUserDto;
+    const user = await this.dataSource.query(
+      `SELECT * FROM users WHERE username = ?`,
+      [username]
+    );
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-
-    /*async findByCod(cod: string): Promise<Users> {
-        const user = await Users.findOne({ where: { cod: cod } });
-        if (!user) {
-            throw new NotFoundException(`User with code ${cod} not found`);
-        }
-        return user;
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      throw new NotFoundException('Invalid credentials');
     }
+    return user;
+  }
 
-    async findByEmail(email: string): Promise<Users> {
-        const user = await Users.findOne({ where: { email: email } });
-        if (!user) {
-            throw new NotFoundException(`User with email ${email} not found`);
-        }
-        return user;
-    }*/
+  async logout(userId: number): Promise<void> {
+    // Implementar lógica de cierre de sesión si es necesario
+  }
 }

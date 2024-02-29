@@ -2,17 +2,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
-import { Users } from './users/users.entity';
+import { Users } from './users/entities/user.entity';
+import { PermissionsModule } from './permissions/permissions.module';
+import { ProfessorsModule } from './professors/professors.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+    TypeOrmModule.forRoot({
         type: 'mysql',
         host: 'localhost',
         port: 3306,
@@ -21,10 +20,11 @@ import { Users } from './users/users.entity';
         retryDelay: 3000,
         autoLoadEntities: true,
         synchronize: false,
-      })
     }),    
     TypeOrmModule.forFeature([Users]),
     UsersModule,
+    PermissionsModule,
+    ProfessorsModule,
   ],
   controllers: [],
   providers: [],
