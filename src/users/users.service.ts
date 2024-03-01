@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Users } from './entities/user.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await this.dataSource.query(
       `INSERT INTO users (id_professor, username, password,  created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)`,
-      [id_professor, username, hashedPassword, ]
+      [id_professor, username, hashedPassword ]
     );
     const id = result.insertId;
     const user = await this.dataSource.query(
@@ -27,8 +27,8 @@ export class UsersService {
 
   async login(loginUserDto: LoginUserDto): Promise<Users> {
     Logger.log(loginUserDto);
-    const { username, password}  = loginUserDto;
-    const user = await this.dataSource.query(
+    const { username, password } = loginUserDto;
+    const [user] = await this.dataSource.query(
       `SELECT * FROM users WHERE username = ?`,
       [username]
     );
@@ -41,6 +41,7 @@ export class UsersService {
     }
     return user;
   }
+  
 
   async logout(userId: number): Promise<void> {
     // Implementar lógica de cierre de sesión si es necesario

@@ -9,7 +9,7 @@ export class Users extends BaseEntity {
     @Column({ unique: true })
     username: string;
 
-    @Column()
+    @Column({nullable: false})
     password: string;
 
     @Column({ name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
