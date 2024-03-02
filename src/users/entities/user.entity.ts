@@ -31,3 +31,5 @@ hqwnbqdjnduqw|dnqudbnqwidnjqwdid int auto_increment primary key,
     isProfessor boolean default false,
   isAdmin BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP*/
+
+  /*updated*/
