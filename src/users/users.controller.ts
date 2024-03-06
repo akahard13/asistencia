@@ -1,4 +1,4 @@
-import { Controller, Post, Body, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -14,14 +14,16 @@ export class UsersController {
   }
 
   @Post('login')
-  async login(@Body() loginUserDto: LoginUserDto) {
+  async login(@Body() loginUserDto: LoginUserDto)
+  {
+
     const user = await this.usersService.login(loginUserDto);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    const token = this.generateToken(user); // Generar token JWT
-    return { user, token }; // Devolver usuario y token en la respuesta
+    const id:number= user.id;
+    const token:string = this.generateToken(user); // Generar token JWT
+    return { id, token }; // Devolver usuario y token en la respuesta
   }
 
   private generateToken(user: Users) {
@@ -35,6 +37,14 @@ export class UsersController {
     await this.usersService.logout(userId);
     // Aquí puedes retornar un mensaje de éxito
     return { message: 'Logout successful' };
+  }
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<Users> {
+    const user = await this.usersService.findOne(+id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return user;
   }
 }
 /*updated*/

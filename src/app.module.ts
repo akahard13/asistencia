@@ -5,6 +5,8 @@ import { UsersModule } from './users/users.module';
 import { Users } from './users/entities/user.entity';
 import { PermissionsModule } from './permissions/permissions.module';
 import { ProfessorsModule } from './professors/professors.module';
+import { StudentsModule } from './students/students.module';
+import { EncodingsModule } from './encodings/encodings.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { ProfessorsModule } from './professors/professors.module';
     UsersModule,
     PermissionsModule,
     ProfessorsModule,
+    StudentsModule,
+    EncodingsModule,
   ],
   controllers: [],
   providers: [],

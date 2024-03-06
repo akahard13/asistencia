@@ -8,7 +8,7 @@ export class CreateProfessorDto {
   @IsNotEmpty()
   email: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   cellphone?: string;
 
   @IsOptional()
