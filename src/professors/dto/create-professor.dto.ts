@@ -13,4 +13,8 @@ export class CreateProfessorDto {
 
   @IsOptional()
   isAdmin?: boolean;
+  @IsNotEmpty()
+  username: string;
+  @IsNotEmpty()
+  password: string;
 }

@@ -7,6 +7,8 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { ProfessorsModule } from './professors/professors.module';
 import { StudentsModule } from './students/students.module';
 import { EncodingsModule } from './encodings/encodings.module';
+import { ClassroomsModule } from './classrooms/classrooms.module';
+import { ClassesModule } from './classes/classes.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { EncodingsModule } from './encodings/encodings.module';
     ProfessorsModule,
     StudentsModule,
     EncodingsModule,
+    ClassroomsModule,
+    ClassesModule,
   ],
   controllers: [],
   providers: [],

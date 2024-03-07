@@ -1,9 +1,10 @@
-import { Controller, Post, Body, Get, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, NotFoundException, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Users } from './entities/user.entity';
 import * as jwt from 'jsonwebtoken';
+import { UpdateUserDto } from './dto/update-user.dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
@@ -22,20 +23,19 @@ export class UsersController {
       throw new NotFoundException('User not found');
     }
     const id:number= user.id;
-    const token:string = this.generateToken(user); // Generar token JWT
-    return { id, token }; // Devolver usuario y token en la respuesta
+    const token:string = this.generateToken(user); 
+    return { id, token }; 
   }
 
   private generateToken(user: Users) {
-    const payload = { username: user.username, sub: user.id }; // Información a incluir en el token
-    return jwt.sign(payload, 'secretKey', { expiresIn: '1h' }); // Generar token JWT
+    const payload = { username: user.username, sub: user.id }; 
+    return jwt.sign(payload, 'secretKey', { expiresIn: '1h' });
   }
 
   @Post('logout')
   async logout(@Body() body: { userId: number }) {
     const { userId } = body;
     await this.usersService.logout(userId);
-    // Aquí puedes retornar un mensaje de éxito
     return { message: 'Logout successful' };
   }
   @Get(':id')
@@ -45,6 +45,14 @@ export class UsersController {
       throw new NotFoundException(`User with id ${id} not found`);
     }
     return user;
+  }
+  @Get()
+  async findAll(): Promise<Users[]> {
+    return this.usersService.findAll();
+  }
+  @Patch(':id')
+  async updatePassword(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<void> {
+    await this.usersService.updatePassword(parseInt(id), updateUserDto);
   }
 }
 /*updated*/

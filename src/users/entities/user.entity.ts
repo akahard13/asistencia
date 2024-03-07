@@ -6,6 +6,9 @@ export class Users extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @JoinColumn({ name: 'id_professor'})
+    id_professor: Professors;
+
     @Column({ unique: true })
     username: string;
 
@@ -15,8 +18,7 @@ export class Users extends BaseEntity {
     @Column({ name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 
-    @JoinColumn({ name: 'id_professor' })
-    id_professor: Professors;
+    
 }
 
 

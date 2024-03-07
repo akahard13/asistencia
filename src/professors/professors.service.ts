@@ -1,23 +1,35 @@
 // professors.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CreateProfessorDto } from './dto/create-professor.dto';
 import { UpdateProfessorDto } from './dto/update-professor.dto';
 import { Professors } from './entities/professor.entity';
-
+import { UsersService } from '../users/users.service';
 @Injectable()
 export class ProfessorsService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly usersService: UsersService, // Inject UsersService
+  ) { }
 
   async create(createProfessorDto: CreateProfessorDto): Promise<Professors> {
-    const { fullname, email, cellphone, isAdmin } = createProfessorDto;
+    const { fullname, email, cellphone, isAdmin, username, password } = createProfessorDto;
     const result = await this.dataSource.query(
       `INSERT INTO professors (fullname, email, cellphone, isAdmin, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`,
       [fullname, email, cellphone, isAdmin]
     );
     const id = result.insertId;
+    Logger.log(username, password);
+    await this.usersService.register({
+      "id_professor": id,
+      "username": username,
+      "password": password
+    });
     const response = await this.dataSource.query(
-      `SELECT * FROM professors WHERE id = ?`,
+      `SELECT p.*, u.username
+      FROM professors p
+      LEFT JOIN users u ON p.id = u.id_professor
+      WHERE p.id = ?`,
       [id]
     );
     return response;
@@ -25,14 +37,20 @@ export class ProfessorsService {
 
   async findAll(): Promise<Professors[]> {
     const response = await this.dataSource.query(
-      `SELECT * FROM professors`
+      `SELECT p.*, u.username
+       FROM professors p
+       LEFT JOIN users u ON p.id = u.id_professor`
     );
     return response;
   }
 
+
   async findOne(id: number): Promise<Professors> {
     const professor = await this.dataSource.query(
-      `SELECT * FROM professors WHERE id = ?`,
+      `SELECT p.*, u.username
+      FROM professors p
+      LEFT JOIN users u ON p.id = u.id_professor
+      WHERE p.id = ?`,
       [id]
     );
     if (!professor) {
