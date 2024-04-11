@@ -15,11 +15,11 @@ export class ClassroomsService {
       [name]
     );
     const id = result.insertId;
-    const student = await this.dataSource.query(
+    const classroom = await this.dataSource.query(
       `SELECT * FROM classrooms WHERE id = ?`,
       [id]
     );
-    return result;
+    return classroom;
   }
 
   async findAll(): Promise<Classrooms[]> {
@@ -53,8 +53,8 @@ export class ClassroomsService {
     return updatedStudent;
   }
 
-  async remove(carnet: string): Promise<void> {
-    const result = await this.dataSource.query(`DELETE FROM students WHERE carnet = ?`, [carnet]);
+  async remove(id: number): Promise<void> {
+    const result = await this.dataSource.query(`DELETE FROM classrooms WHERE id = ?`, [id]);
     if (result.affectedRows === 0) {
       throw new NotFoundException('Student not found');
     }

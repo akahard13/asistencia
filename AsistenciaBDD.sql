@@ -1,9 +1,9 @@
 DROP
-DATABASE IF EXISTS asistencia;
+    DATABASE IF EXISTS asistencia;
 CREATE
-DATABASE asistencia;
+    DATABASE asistencia;
 USE
-asistencia;
+    asistencia;
 
 CREATE TABLE students
 (
@@ -11,7 +11,7 @@ CREATE TABLE students
     fullname   VARCHAR(200) NOT NULL,
     email      VARCHAR(100) NOT NULL UNIQUE,
     cellphone  VARCHAR(12),
-    grade      INT(10) NOT NULL,
+    grade      INT(10)      NOT NULL,
     created_at TIMESTAMP default NOW()
 );
 
@@ -51,24 +51,32 @@ CREATE TABLE classrooms
 DROP TABLE IF EXISTS classes;
 CREATE TABLE classes
 (
-    id           INT PRIMARY KEY AUTO_INCREMENT,
-    name         VARCHAR(100) NOT NULL,
-    grade        INT          NOT NULL,
-    created_at   TIMESTAMP default NOW()
+    id         INT PRIMARY KEY AUTO_INCREMENT,
+    name       VARCHAR(100) NOT NULL,
+    grade      INT          NOT NULL,
+    created_at TIMESTAMP default NOW()
 );
+
 DROP TABLE IF EXISTS class_groups;
 CREATE TABLE class_groups
 (
     id           INT PRIMARY KEY AUTO_INCREMENT,
     id_class     INT NOT NULL,
     id_professor INT NOT NULL,
-    id_classroom INT          NOT NULL,
-    time         DATE,
-    day          VARCHAR(200),
-    UNIQUE KEY (time, day, id_class, id_professor, id_classroom),
-    FOREIGN KEY (id_classroom) REFERENCES classrooms (id),
     FOREIGN KEY (id_class) REFERENCES classes (id),
     FOREIGN KEY (id_professor) REFERENCES professors (id)
+);
+DROP TABLE IF EXISTS class_schedule;
+CREATE TABLE class_schedule
+(
+    id           INT PRIMARY KEY AUTO_INCREMENT,
+    id_group     INT,
+    id_classroom INT NOT NULL,
+    time_class   TIME,
+    day_class    VARCHAR(200),
+    UNIQUE KEY (time_class, day_class, id_classroom),
+    FOREIGN KEY (id_classroom) REFERENCES classrooms (id),
+    FOREIGN KEY (id_group) REFERENCES class_groups (id)
 );
 DROP TABLE IF EXISTS groupmembers;
 CREATE TABLE groupmembers
@@ -124,6 +132,19 @@ BEGIN
     INSERT INTO user_permissions (id_professor, id_permission) VALUES (NEW.id, 2);
 END //
 
+SELECT COUNT(*)
+FROM class_schedule
+WHERE id_classroom = 2
+  AND time_class = '9:00:00'
+  AND day_class = 'Lunes';
 
+SELECT cs.*, cl.name
+FROM class_schedule cs
+         JOIN classrooms cl ON cl.id = cs.id_classroom;
 
-DELIMITER;
+SELECT cg.*, c.name as clase, c.grade as anyo, p.fullname as profesor, cs.day_class, cs.time_class, cl.name as aula
+FROM class_groups as cg
+         JOIN classes as c on c.id = cg.id_class
+         JOIN professors p on cg.id_professor = p.id
+         JOIN class_schedule cs on cg.id = cs.id_group
+         JOIN classrooms cl on cs.id_classroom = cl.id

@@ -19,7 +19,7 @@ export class ProfessorsService {
       [fullname, email, cellphone, isAdmin]
     );
     const id = result.insertId;
-    Logger.log(username, password);
+    //Logger.log(username, password);
     await this.usersService.register({
       "id_professor": id,
       "username": username,

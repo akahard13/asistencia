@@ -1,5 +1,6 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Users } from '../../users/entities/user.entity';
+import { ClassGroup } from 'src/class_groups/entities/class_group.entity';
 @Entity({ name: 'professors' })
 export class Professors extends BaseEntity {
     @PrimaryGeneratedColumn()
@@ -16,9 +17,10 @@ export class Professors extends BaseEntity {
 
     @Column({ default: false })
     isAdmin: boolean;
-    @OneToOne(() => Users, user => user.id_professor)
-    users: Users;
 
+    @OneToMany(() => ClassGroup, classGroup => classGroup.id_professor)
+    classGroup: ClassGroup;
+    
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
 }

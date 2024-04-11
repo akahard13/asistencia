@@ -17,4 +17,6 @@ export class CreateStudentDto {
 
   @IsNotEmpty()
   grade: number;
+  
+  encoding: string;
 }

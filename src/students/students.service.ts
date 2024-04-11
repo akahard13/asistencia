@@ -3,18 +3,24 @@ import { DataSource } from 'typeorm';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { Students } from './entities/student.entity';
+import { EncodingsService } from 'src/encodings/encodings.service';
 
 @Injectable()
 export class StudentsService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(private readonly dataSource: DataSource,
+    private readonly encodingsService: EncodingsService) {}
 
   async create(createStudentDto: CreateStudentDto): Promise<Students> {
-    const { carnet, fullname, email, cellphone, grade } = createStudentDto;
+    const { carnet, fullname, email, cellphone, grade, encoding } = createStudentDto;
     const result = await this.dataSource.query(
       `INSERT INTO students (carnet, fullname, email, cellphone, grade, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
       [carnet, fullname, email, cellphone, grade]
     );
     //const id = result.insertId;
+    await this.encodingsService.create({
+      "id_student": carnet,
+      "name": encoding
+    });
     const student = await this.dataSource.query(
       `SELECT * FROM students WHERE carnet = ?`,
       [carnet]

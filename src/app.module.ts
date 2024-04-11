@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
@@ -9,6 +9,9 @@ import { StudentsModule } from './students/students.module';
 import { EncodingsModule } from './encodings/encodings.module';
 import { ClassroomsModule } from './classrooms/classrooms.module';
 import { ClassesModule } from './classes/classes.module';
+import { ClassGroupsModule } from './class_groups/class_groups.module';
+import { ClassScheduleModule } from './class_schedule/class_schedule.module';
+import { AuthMiddleware } from './Middlewares/auth.middleware';
 
 @Module({
   imports: [
@@ -33,8 +36,16 @@ import { ClassesModule } from './classes/classes.module';
     EncodingsModule,
     ClassroomsModule,
     ClassesModule,
+    ClassGroupsModule,
+    ClassScheduleModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}
